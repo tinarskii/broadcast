@@ -1,0 +1,60 @@
+<schemalist>
+    <schema id="com.tinarskii.broadcast" path="/com/tinarskii/broadcast/">
+        <key name="stream-key" type="s">
+            <default>'your-default-stream-key'</default>
+            <summary>Stream Key</summary>
+            <description>The stream key used for broadcasting.</description>
+        </key>
+        <key name="stream-url" type="s">
+            <default>'rtmp://ingest.global-contribute.live-video.net/app/'</default>
+            <summary>Stream URL</summary>
+            <description>The URL of the streaming server.</description>
+        </key>
+        <key name="video-resolution" type="s">
+            <choices>
+                <choice value='480p (SD)' />
+                <choice value='720p (HD)' />
+                <choice value='1080p (Full HD)' />
+                <choice value='1440p (QHD)' />
+                <choice value='2160p (4K)' />
+            </choices>
+            <default>'1080p (Full HD)'</default>
+            <summary>Video Resolution</summary>
+            <description>The resolution of the video stream.</description>
+        </key>
+        <key name="frame-rate" type="s">
+            <choices>
+                <choice value='24 Fps' />
+                <choice value='30 Fps' />
+                <choice value='60 Fps' />
+                <choice value='120 Fps' />
+            </choices>
+            <default>'30 Fps'</default>
+            <summary>Frame Rate</summary>
+            <description>The frame rate of the video stream.</description>
+        </key>
+        <key name="video-quality" type="s">
+            <choices>
+                <choice value='1200kbps (Low)' />
+                <choice value='3000kbps (Fair)' />
+                <choice value='4500kbps (Standard)' />
+                <choice value='6000kbps (High)' />
+                <choice value='8000kbps (Very High)' />
+            </choices>
+            <default>'4500kbps (Standard)'</default>
+            <summary>Video Quality</summary>
+            <description>The quality of the video stream.</description>
+        </key>
+        <key name="audio-quality" type="s">
+            <choices>
+                <choice value='96kbps (Low)' />
+                <choice value='160kbps (Standard)' />
+                <choice value='192kbps (High)' />
+                <choice value='256kbps (Very High)' />
+            </choices>
+            <default>'256kbps (Very High)'</default>
+            <summary>Audio Quality</summary>
+            <description>The quality of the audio stream.</description>
+        </key>
+    </schema>
+</schemalist>

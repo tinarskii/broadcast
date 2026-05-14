@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+        "strict": false,
+        "target": "ES2022",
+        "module": "ES2022",
+        "lib": ["ES2022"],
+        "types": ["@girs/gjs", "@girs/gtk-4.0", "@girs/adw-1", "@girs/gst-1.0"]
+    }
+}
