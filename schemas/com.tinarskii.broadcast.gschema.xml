@@ -56,5 +56,10 @@
             <summary>Audio Quality</summary>
             <description>The quality of the audio stream.</description>
         </key>
+        <key name="scenes-data" type="s">
+            <default>'[]'</default>
+            <summary>Scenes Data</summary>
+            <description>Serialized scenes and elements data in JSON format.</description>
+        </key>
     </schema>
 </schemalist>

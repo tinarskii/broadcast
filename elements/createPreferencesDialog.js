@@ -2,7 +2,6 @@ import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk?version=4.0';
 import Adwaita from 'gi://Adw?version=1';
 
-// Setting schema
 const settings = new Gio.Settings({ schemaId: "com.tinarskii.broadcast" });
 const videoResolutionOptions = [
     "480p (SD)",
@@ -66,7 +65,6 @@ export function createPreferencesDialog(parent) {
 
     const streamURLRow = new Adwaita.EntryRow({ title: 'Stream URL' });
     streamURLRow.set_text(settings.get_string('stream-url'));
-    streamURLRow.set_sensitive(settings.get_string('stream-url') === '');
 
     const urlCombo = new Adwaita.ComboRow({ title: 'Platform' });
     const urlStore = new Gtk.StringList();
@@ -75,6 +73,7 @@ export function createPreferencesDialog(parent) {
     const currentURL = settings.get_string('stream-url');
     const matchedIndex = defaultIngestURL.findIndex(item => item.url === currentURL);
     urlCombo.set_selected(matchedIndex >= 0 ? matchedIndex : defaultIngestURL.length - 1);
+    streamURLRow.set_sensitive(matchedIndex === -1 || streamURLRow.get_text() === "");
 
     urlCombo.connect('notify::selected', (row) => {
         const selectedIndex = row.get_selected();
@@ -124,13 +123,13 @@ export function createPreferencesDialog(parent) {
     const currentFrameRateIndex = frameRateOptions.indexOf(currentFrameRate);
     outputFrameRateRow.set_selected(currentFrameRateIndex >= 0 ? currentFrameRateIndex : 0);
 
-
     outputGroup.add(outputResolutionRow);
     outputGroup.add(outputFrameRateRow);
     outputGroup.add(outputVideoRow);
     outputGroup.add(outputAudioRow);
     // ==
 
+    // == On edit handlers ==
     streamKeyRow.connect('changed', (entry) => {
         const newKey = entry.get_text().trim();
         settings.set_string('stream-key', newKey);
@@ -168,6 +167,7 @@ export function createPreferencesDialog(parent) {
             settings.set_string('frame-rate', newFrameRate);
         }
     });
+    // ==
 
     dialog.present(parent);
     return dialog;

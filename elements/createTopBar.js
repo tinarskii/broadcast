@@ -11,7 +11,7 @@ export function createTopBar() {
     else { liveIndicator.remove_css_class('destructive-action'); liveIndicator.set_sensitive(false); }
 
     const sceneLabels = data.scenes.map((scene, index) => {
-        const btn = new Gtk.Button({ label: scene });
+        const btn = new Gtk.Button({ label: scene.name });
         if (index !== data.activeSceneIndex) {
             btn.set_opacity(0.5);
         }
@@ -54,7 +54,6 @@ export function createTopBar() {
     liveIndicator.set_margin_top(10);
     liveIndicator.set_margin_bottom(10);
 
-    topbar.append(sceneBtnContainer);
     topbar.append(actionBtnContainer);
     topbar.append(spacer);
     topbar.append(liveIndicator);

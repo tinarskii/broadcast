@@ -9,18 +9,20 @@ import Adwaita from 'gi://Adw?version=1';
 import { createTopBar } from './elements/createTopBar.js';
 import { createBottomBar } from './elements/createBottomBar.js';
 import { createPreviewArea } from './elements/createPreviewArea.js';
-import Gst from 'gi://Gst?version=1.0';
 import { createConfirmationDialog, createErrorDialog, createInputDialog } from './elements/createDialog.js';
 import { createPreferencesDialog } from './elements/createPreferencesDialog.js';
+import { showElementsDialog } from './elements/createElementsDialog.js';
+import { endStream, startStream } from './stream.js';
+import { loadScenes, makeScene, saveScenes } from './sceneStore.js';
 
 // Mock data
 export const data = {
-    scenes: ['Scene 1', 'Scene 2', 'Scene 3'],
+    scenes: loadScenes(),
     activeSceneIndex: 0,
+    selectedElementIndex: null,
     isLive: false,
+    persistScenes: () => saveScenes(data.scenes),
 };
-
-Gst.init(null);
 
 const app = new Adwaita.Application({
     application_id: 'com.tinarskii.broadcast',
@@ -86,11 +88,16 @@ app.connect('activate', () => {
         bottombar.recordButton.set_label(data.isLive ? 'STOP' : 'START');
 
         const newSceneLabels = data.scenes.map((scene, index) => {
-            const btn = new Gtk.Button({ label: scene });
+            const btn = new Gtk.Button({ label: scene.name });
             if (index !== data.activeSceneIndex) {
                 btn.set_opacity(0.5);
             }
-            btn.add_css_class("round")
+            btn.add_css_class("round");
+            btn.connect('clicked', () => {
+                data.activeSceneIndex = index;
+                data.selectedElementIndex = null;
+                refreshUI();
+            });
             return btn;
         });
 
@@ -103,6 +110,9 @@ app.connect('activate', () => {
         for (const btn of newSceneLabels) {
             topbar.sceneBtnContainer.append(btn);
         }
+
+        data.persistScenes();
+        preview.widget.queue_draw();
     }
 
     function eventHandler() {
@@ -110,32 +120,24 @@ app.connect('activate', () => {
         bottombar.recordButton.connect('clicked', () => {
             let action = data.isLive ? 'stop' : 'start';
 
-            const dialog = new Adwaita.MessageDialog({
-                transient_for: window,
-                modal: true,
-            });
-            dialog.set_heading('Confirm Action');
-            dialog.set_body(`Do you wish to ${action} the broadcast?`);
-            dialog.add_response('cancel', 'Cancel');
-            dialog.add_response('confirm', action === 'start' ? 'Start' : 'Stop');
-            dialog.set_default_response('cancel');
-            dialog.connect('response', (d, response) => {
-                if (response === 'confirm') {
-                    data.isLive = !data.isLive;
-                    refreshUI();
+            const dialog = createConfirmationDialog(
+                window,
+                `Are you sure you want to ${action} the broadcast?`,
+                () => {
+                    let changed = false;
+                    if (action === 'stop') {
+                        changed = endStream();
+                    } else {
+                        changed = startStream();
+                    }
+                    if (changed) {
+                        data.isLive = !data.isLive;
+                        refreshUI();
+                    }
                 }
-                d.destroy();
-            });
+            );
 
             dialog.show();
-        });
-
-        // On scene button click
-        topbar.sceneButtons.forEach((btn, index) => {
-            btn.connect('clicked', () => {
-                data.activeSceneIndex = index;
-                refreshUI();
-            });
         });
 
         // On add new scene button click
@@ -151,8 +153,9 @@ app.connect('activate', () => {
                         errorDialog.show();
                         return;
                     }
-                    data.scenes.push(text);
+                    data.scenes.push(makeScene(text));
                     data.activeSceneIndex = data.scenes.length - 1;
+                    data.selectedElementIndex = null;
                     refreshUI();
                 }
             );
@@ -169,16 +172,23 @@ app.connect('activate', () => {
 
             const dialog = createConfirmationDialog(
                 window,
-                `Are you sure you want to remove the current scene "${data.scenes[data.activeSceneIndex]}"?`,
+                `Are you sure you want to remove the current scene "${data.scenes[data.activeSceneIndex].name}"?`,
                 () => {
                     data.scenes.splice(data.activeSceneIndex, 1);
                     if (data.activeSceneIndex >= data.scenes.length) {
                         data.activeSceneIndex = data.scenes.length - 1;
                     }
+                    data.selectedElementIndex = null;
                     refreshUI();
                 }
             );
             dialog.show();
+        });
+
+        bottombar.elementsButton.connect('clicked', () => {
+            showElementsDialog(window, () => {
+                refreshUI();
+            });
         });
 
         // On settings button click
@@ -194,6 +204,7 @@ app.connect('activate', () => {
     }
 
 
+    refreshUI();
     eventHandler();
 
 });
