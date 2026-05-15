@@ -38,6 +38,10 @@ const defaultIngestURL = [
         url: "rtmp://ingest.global-contribute.live-video.net/app/"
     },
     {
+        label: "Kick",
+        url: "rtmps://fa723fc1b171.global-contribute.live-video.net/app/"
+    },
+    {
         label: "YouTube",
         url: "rtmp://a.rtmp.youtube.com/live2"
     },
